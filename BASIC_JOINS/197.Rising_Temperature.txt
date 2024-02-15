@@ -1,0 +1,18 @@
+solution 1
+
+SELECT w1.id
+FROM Weather w1, Weather w2
+WHERE DATEDIFF(w1.recordDate, w2.recordDate) = 1 AND w1.temperature > w2.temperature;
+
+solution 2 (cte)
+WITH weather AS (
+    SELECT DISTINCT recordDate, id, temperature,
+           LAG(temperature) OVER (ORDER BY recordDate ASC) AS yesterday_temp,
+           DATEDIFF(recordDate, LAG(recordDate) OVER (ORDER BY recordDate ASC)) as days_gap
+    FROM Weather
+)
+SELECT id
+FROM weather
+WHERE (temperature > yesterday_temp OR yesterday_temp IS NULL)
+      AND days_gap = 1;
+-- 
